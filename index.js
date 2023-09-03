@@ -24,26 +24,26 @@ mongoose
   .then("Connected to database")
   .catch(errorHandler);
 
-//* intializing express server
-const port = 8000;
-const app = express();
+// //* intializing express server
+// const port = 8000;
+// const app = express();
 
-//* Allow the following IPs
-const allowed = (ip) => {
-  const ips = ["::1"];
-  return ips.includes(ip);
-};
-//* setting up the middlewares
-app.use(function (req, res, next) {
-  if (allowed(req.ip)) next();
-  else
-    res.status(401).end(
-      JSON.stringify({
-        error: 401,
-        msg: "Please provide valid token",
-      })
-    );
-});
+// //* Allow the following IPs
+// const allowed = (ip) => {
+//   const ips = ["::1"];
+//   return ips.includes(ip);
+// };
+// //* setting up the middlewares
+// app.use(function (req, res, next) {
+//   if (allowed(req.ip)) next();
+//   else
+//     res.status(401).end(
+//       JSON.stringify({
+//         error: 401,
+//         msg: "Please provide valid token",
+//       })
+//     );
+// });
 app.use(cors());
 app.use(bodyParser.json());
 
