@@ -16,12 +16,11 @@ function errorHandler(error) {
 //! INTIALIZING REQUIREMENTS ------------------------
 
 //* connecting to database
-mongoose
+await mongoose
   .connect(config.dburi, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then("Connected to database")
   .catch(errorHandler);
 
 //* intializing express server
