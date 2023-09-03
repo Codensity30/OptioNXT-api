@@ -24,9 +24,9 @@ mongoose
   .then("Connected to database")
   .catch(errorHandler);
 
-// //* intializing express server
-// const port = 8000;
-// const app = express();
+//* intializing express server
+const port = 8000;
+const app = express();
 
 // //* Allow the following IPs
 // const allowed = (ip) => {
