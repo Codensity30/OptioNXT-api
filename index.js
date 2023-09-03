@@ -181,7 +181,7 @@ async function getAndStore(symbol) {
 }
 
 async function updateOi() {
-  await axios.get("http://localhost:8000/update-oiData").catch(errorHandler);
+  await axios.get(`${config.apiurl}/update-oiData`).catch(errorHandler);
 }
 
 async function clearDb() {
@@ -194,7 +194,7 @@ async function clearDb() {
 }
 
 async function storeSymbol() {
-  await axios.get("http://localhost:8000/symbol-store").catch(errorHandler);
+  await axios.get(`${config.apiurl}/symbol-store`).catch(errorHandler);
 }
 
 //* sheduling jobs to run at certain interval and time
