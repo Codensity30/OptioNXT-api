@@ -16,17 +16,22 @@ function errorHandler(error) {
 //! INTIALIZING REQUIREMENTS ------------------------
 
 //* connecting to database
-mongoose
-  .connect(config.dburi, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(next())
-  .catch(errorHandler);
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(config.dburi, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
+  } catch (error) {
+    console.log(error);
+    process.exit(1);
+  }
+};
 
 //* intializing express server
 function next() {
-  const port = 8000;
+  const PORT = process.env.PORT || 3000;
   const app = express();
 
   // //* Allow the following IPs
@@ -533,7 +538,9 @@ function next() {
   });
 
   //* listening on port
-  app.listen(port, () => {
-    console.log(`Server is listening on port ${port}`);
+  connectDB().then(() => {
+    app.listen(PORT, () => {
+      console.log("listening for requests");
+    });
   });
 }
