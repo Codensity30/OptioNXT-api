@@ -207,29 +207,32 @@ function next() {
 
   //* sheduling jobs to run at certain interval and time
 
-  process.env.TZ = "Asia/Kolkata";
-  const dailyDbClearCron = "50 14 9 * * 1-5";
-  const firstHourCron = "15-59/5 9 * * 1-5";
-  const daily5minCron = "*/5 10-14 * * 1-5";
-  const lastHourCron = "0-30/5 15 * * 1-5";
+  // process.env.TZ = "Asia/Kolkata";
+  // const dailyDbClearCron = "50 14 9 * * 1-5";
+  // const firstHourCron = "15-59/5 9 * * 1-5";
+  // const daily5minCron = "*/5 10-14 * * 1-5";
+  // const lastHourCron = "0-30/5 15 * * 1-5";
 
-  const daily5Min = schedule.scheduleJob(daily5minCron, async () => {
-    await updateOi();
-    console.log("job is running");
-  });
-  const firstHour = schedule.scheduleJob(firstHourCron, async () => {
-    await updateOi();
-    console.log("job is running");
-  });
-  const lastHour = schedule.scheduleJob(lastHourCron, async () => {
-    await updateOi();
-    console.log("job is running");
-  });
-  const dailyDbClear = schedule.scheduleJob(dailyDbClearCron, async () => {
-    await clearDb();
-    await storeSymbol();
-    console.log("db is cleared");
-  });
+  // const daily5Min = schedule.scheduleJob(daily5minCron, async () => {
+  //   await updateOi();
+  //   console.log("job is running");
+  // });
+  // const firstHour = schedule.scheduleJob(firstHourCron, async () => {
+  //   await updateOi();
+  //   console.log("job is running");
+  // });
+  // const lastHour = schedule.scheduleJob(lastHourCron, async () => {
+  //   await updateOi();
+  //   console.log("job is running");
+  // });
+  // const dailyDbClear = schedule.scheduleJob(dailyDbClearCron, async () => {
+  //   await clearDb();
+  //   await storeSymbol();
+  //   console.log("db is cleared");
+  // });
+
+  const daily5MinInterval = 0.5 * 60 * 1000; // 5 minutes in milliseconds
+  let startDaily5Min = null;
 
   //! ROUTING -------------------------------------------------------
 
@@ -255,6 +258,30 @@ function next() {
     await clearDb();
     await storeSymbol();
     res.send("db is cleared");
+  });
+
+  app.get("/start-daily5Min", async (req, res) => {
+    // Check if the interval is already running
+    if (!startDaily5Min) {
+      startDaily5Min = setInterval(async () => {
+        await updateOi();
+        console.log("job is running");
+      }, daily5MinInterval);
+      res.send("started");
+    } else {
+      res.send("Interval already started");
+    }
+  });
+
+  app.get("/stop-daily5Min", async (req, res) => {
+    if (startDaily5Min) {
+      clearInterval(startDaily5Min);
+      console.log("job stopped");
+      startDaily5Min = null; // Reset to null
+      res.send("stopped");
+    } else {
+      res.send("Interval not running");
+    }
   });
 
   //* endpoint to test
