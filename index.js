@@ -31,7 +31,7 @@ const connectDB = async () => {
 
 //* intializing express server
 function next() {
-  const PORT = process.env.PORT || 3000;
+  const PORT = process.env.PORT || 8000;
   const app = express();
 
   // //* Allow the following IPs
