@@ -31,7 +31,7 @@ const connectDB = async () => {
 
 //* intializing express server
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 8000;
 const app = express();
 
 // //* Allow the following IPs
@@ -229,12 +229,31 @@ async function storeSymbol() {
 //   console.log("db is cleared");
 // });
 
+const startDaily5MinCron = "15 9 * * 1-5";
+const stopDaily5MinCron = "30 15 * * 1-5";
+const dailyDbClearCron = "50 14 9 * * 1-5";
+
+schedule.scheduleJob(dailyDbClearCron, async () => {
+  await axios.get(`${config.apiurl}/start-daily5Min`);
+  console.log("job has started");
+});
+
+schedule.scheduleJob(startDaily5MinCron, async () => {
+  await axios.get(`${config.apiurl}/clear-db`);
+  console.log("db has been cleared");
+});
+
+schedule.scheduleJob(stopDaily5MinCron, async () => {
+  await axios.get(`${config.apiurl}/stop-daily5Min`);
+  console.log("job has stopped");
+});
+
 const daily5MinInterval = 0.5 * 60 * 1000; // 5 minutes in milliseconds
 let startDaily5Min = null;
 
 //! ROUTING -------------------------------------------------------
 
-//* endpoint for internal purposes
+//! endpoint for internal purposes -----------------------------------------
 app.get("/update-oiData", async (req, res) => {
   try {
     const symList = ["NIFTY", "BANKNIFTY", "FINNIFTY"];
@@ -282,7 +301,7 @@ app.get("/stop-daily5Min", async (req, res) => {
   }
 });
 
-//* endpoint to test
+//! endpoint to test ----------------------------------------
 app.get("/", (req, res) => {
   res.send("Hey this is my API running 🥳");
 });
