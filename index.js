@@ -248,7 +248,7 @@ schedule.scheduleJob(stopDaily5MinCron, async () => {
   console.log("job has stopped");
 });
 
-const daily5MinInterval = 0.1 * 60 * 1000; // 5 minutes in milliseconds
+const daily5MinInterval = 1 * 60 * 1000; // 5 minutes in milliseconds
 let startDaily5Min = null;
 
 //! ROUTING -------------------------------------------------------
