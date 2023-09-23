@@ -282,7 +282,7 @@ app.get("/start-daily5Min", async (req, res) => {
   if (!startDaily5Min) {
     console.log("started");
     startDaily5Min = setInterval(async () => {
-      await updateOi();
+      // await updateOi();
       console.log("job is running");
     }, daily5MinInterval);
     res.send("started");
