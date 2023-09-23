@@ -280,9 +280,8 @@ app.get("/clear-db", async (req, res) => {
 app.get("/start-daily5Min", async (req, res) => {
   // Check if the interval is already running
   if (!startDaily5Min) {
-    console.log("started");
     startDaily5Min = setInterval(async () => {
-      // await updateOi();
+      await updateOi();
       console.log("job is running");
     }, daily5MinInterval);
     res.send("started");
@@ -295,8 +294,8 @@ app.get("/start-daily5Min", async (req, res) => {
 app.get("/stop-daily5Min", async (req, res) => {
   if (startDaily5Min) {
     clearInterval(startDaily5Min);
-    console.log("job stopped");
     startDaily5Min = null; // Reset to null
+    console.log("job stopped");
     res.send("stopped");
   } else {
     res.send("Interval not running");
