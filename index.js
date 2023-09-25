@@ -2,7 +2,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const axios = require("axios");
-const schedule = require("node-schedule");
+// const schedule = require("node-schedule");
 const cors = require("cors");
 const config = require("./config");
 const bodyParser = require("body-parser");
@@ -204,7 +204,7 @@ async function storeSymbol() {
 }
 
 //* sheduling jobs to run at certain interval and time
-
+//! NOTE:- this is just logic but currently we use fastCron to shcedule the cron jobs
 // process.env.TZ = "Asia/Kolkata";
 // const dailyDbClearCron = "50 14 9 * * 1-5";
 // const firstHourCron = "15-59/5 9 * * 1-5";
@@ -229,27 +229,27 @@ async function storeSymbol() {
 //   console.log("db is cleared");
 // });
 
-const startDaily5MinCron = "15 9 * * 1-5";
-const stopDaily5MinCron = "30 15 * * 1-5";
-const dailyDbClearCron = "50 14 9 * * 1-5";
+// const startDaily5MinCron = "15 9 * * 1-5";
+// const stopDaily5MinCron = "30 15 * * 1-5";
+// const dailyDbClearCron = "50 14 9 * * 1-5";
 
-schedule.scheduleJob(dailyDbClearCron, async () => {
-  await axios.get(`${config.apiurl}/start-daily5Min`);
-  console.log("job has started");
-});
+// schedule.scheduleJob(dailyDbClearCron, async () => {
+//   await axios.get(`${config.apiurl}/start-daily5Min`);
+//   console.log("job has started");
+// });
 
-schedule.scheduleJob(startDaily5MinCron, async () => {
-  await axios.get(`${config.apiurl}/clear-db`);
-  console.log("db has been cleared");
-});
+// schedule.scheduleJob(startDaily5MinCron, async () => {
+//   await axios.get(`${config.apiurl}/clear-db`);
+//   console.log("db has been cleared");
+// });
 
-schedule.scheduleJob(stopDaily5MinCron, async () => {
-  await axios.get(`${config.apiurl}/stop-daily5Min`);
-  console.log("job has stopped");
-});
+// schedule.scheduleJob(stopDaily5MinCron, async () => {
+//   await axios.get(`${config.apiurl}/stop-daily5Min`);
+//   console.log("job has stopped");
+// });
 
-const daily5MinInterval = 1 * 60 * 1000; // 5 minutes in milliseconds
-let startDaily5Min = null;
+// const daily5MinInterval = 5 * 60 * 1000; // 5 minutes in milliseconds
+// let startDaily5Min = null;
 
 //! ROUTING -------------------------------------------------------
 
@@ -277,30 +277,29 @@ app.get("/clear-db", async (req, res) => {
   res.send("db is cleared");
 });
 
-app.get("/start-daily5Min", async (req, res) => {
-  // Check if the interval is already running
-  if (!startDaily5Min) {
-    startDaily5Min = setInterval(async () => {
-      await updateOi();
-      console.log("job is running");
-    }, daily5MinInterval);
-    res.send("started");
-  } else {
-    console.log("already started");
-    res.send("Interval already started");
-  }
-});
+// app.get("/start-daily5Min", async (req, res) => {
+//   if (!startDaily5Min) {
+//     startDaily5Min = setInterval(async () => {
+//       await updateOi();
+//       console.log("job is running");
+//     }, daily5MinInterval);
+//     res.send("started");
+//   } else {
+//     console.log("already started");
+//     res.send("Interval already started");
+//   }
+// });
 
-app.get("/stop-daily5Min", async (req, res) => {
-  if (startDaily5Min) {
-    clearInterval(startDaily5Min);
-    startDaily5Min = null; // Reset to null
-    console.log("job stopped");
-    res.send("stopped");
-  } else {
-    res.send("Interval not running");
-  }
-});
+// app.get("/stop-daily5Min", async (req, res) => {
+//   if (startDaily5Min) {
+//     clearInterval(startDaily5Min);
+//     startDaily5Min = null; // Reset to null
+//     console.log("job stopped");
+//     res.send("stopped");
+//   } else {
+//     res.send("Interval not running");
+//   }
+// });
 
 //! endpoint to test ----------------------------------------
 app.get("/", (req, res) => {
