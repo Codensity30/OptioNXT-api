@@ -78,8 +78,8 @@ function getCurrentISTTime() {
 
   // ISTTime now represents the time in IST coordinates
 
-  const hoursIST = ISTTime.getHours();
-  const minutesIST = ISTTime.getMinutes();
+  const hoursIST = ISTTime.getHours().toString().padStart(2, "0");
+  const minutesIST = ISTTime.getMinutes().toString().padStart(2, "0");
 
   return `${hoursIST}:${minutesIST}`;
 }
