@@ -170,11 +170,15 @@ async function getAndStore(symbol) {
 }
 
 async function initializeDb() {
-  await mongoose.connection.db.dropCollection("FINNIFTY").catch(errorHandler);
-  await mongoose.connection.db.dropCollection("BANKNIFTY").catch(errorHandler);
-  await mongoose.connection.db.dropCollection("NIFTY").catch(errorHandler);
+  try {
+    // Delete all documents in the following collections
+    await mongoose.connection.db.collection("FINNIFTY").deleteMany({});
+    await mongoose.connection.db.collection("BANKNIFTY").deleteMany({});
+    await mongoose.connection.db.collection("NIFTY").deleteMany({});
+  } catch (error) {
+    console.error("Error deleting data:", error);
+  }
 }
-
 //! ROUTING -------------------------------------------------------
 
 //! endpoint for internal purposes -----------------------------------------
