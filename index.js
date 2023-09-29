@@ -61,9 +61,9 @@ const feedbackSchema = new mongoose.Schema({
   message: String,
 });
 
-//! SCHEDULING THE JOBS------------------------------------------
+//! DAILY JOBS------------------------------------------
 
-//* important functions to store the and clear db in daily routine
+//! important functions to store the and clear db in daily routine
 
 function getCurrentISTTime() {
   const currentTime = new Date();
@@ -169,22 +169,11 @@ async function getAndStore(symbol) {
   }
 }
 
-async function updateOi() {
-  await axios.get(`${config.apiurl}/update-oiData`).catch(errorHandler);
-}
-
 async function initializeDb() {
-  await mongoose.connection.db
-    .dropCollection("symbol_lists")
-    .catch(errorHandler);
   await mongoose.connection.db.dropCollection("FINNIFTY").catch(errorHandler);
   await mongoose.connection.db.dropCollection("BANKNIFTY").catch(errorHandler);
   await mongoose.connection.db.dropCollection("NIFTY").catch(errorHandler);
-  await axios.get(`${config.apiurl}/symbol-store`).catch(errorHandler);
 }
-
-//* sheduling jobs to run at certain interval and time
-//! NOTE:- this is just logic but currently we use fastCron to shcedule the cron jobs
 
 //! ROUTING -------------------------------------------------------
 
@@ -211,29 +200,7 @@ app.get("/initialize-db", async (req, res) => {
   res.send("db is initialized");
 });
 
-//! endpoint to test ----------------------------------------
-app.get("/", (req, res) => {
-  res.send("Hey this is my API running 🥳");
-});
-
-//! following are the endpoints for fetching data ---------------------------------------
-app.get("/symbol-list", async (req, res) => {
-  try {
-    const Symbol = mongoose.model("symbol_list", symbolListSchema);
-
-    const symObj = await Symbol.find({}).catch(errorHandler);
-
-    // Map the data to get an array of symbol names
-    const symList = symObj.map((element) => element.symbolName);
-
-    res.send(symList);
-  } catch (error) {
-    errorHandler(error);
-    res.status(500).send("Internal Server Error");
-  }
-});
-
-//* endpoint to record symbols lists in database
+//* not in daily use
 app.get("/symbol-store", async (req, res) => {
   try {
     const url = "https://webapi.niftytrader.in/webapi/symbol/psymbol-list";
@@ -258,7 +225,28 @@ app.get("/symbol-store", async (req, res) => {
   }
 });
 
-//* endpoint to fetch the live oi data of the specified expiry
+//! endpoint to test ----------------------------------------
+app.get("/", (req, res) => {
+  res.send("Hey! this is OpitoNXT API running 🥳");
+});
+
+//! following are the endpoints for fetching data ---------------------------------------
+app.get("/symbol-list", async (req, res) => {
+  try {
+    const Symbol = mongoose.model("symbol_list", symbolListSchema);
+
+    const symObj = await Symbol.find({}).catch(errorHandler);
+
+    // Map the data to get an array of symbol names
+    const symList = symObj.map((element) => element.symbolName);
+
+    res.send(symList);
+  } catch (error) {
+    errorHandler(error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 app.get("/live-oicoi-ex/:symbol/:expiryDate", async (req, res) => {
   try {
     const { symbol, expiryDate } = req.params;
