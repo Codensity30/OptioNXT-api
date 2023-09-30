@@ -2,6 +2,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const axios = require("axios");
+const luxon = require("luxon");
 const cors = require("cors");
 const config = require("./config");
 const bodyParser = require("body-parser");
@@ -82,6 +83,20 @@ function getCurrentISTTime() {
   const minutesIST = ISTTime.getMinutes().toString().padStart(2, "0");
 
   return `${hoursIST}:${minutesIST}`;
+}
+
+function isWithinTradingTime(currentTime) {
+  return (
+    currentTime.hour >= 9 &&
+    currentTime.minute >= 20 &&
+    (currentTime.hour < 15 ||
+      (currentTime.hour === 15 && currentTime.minute <= 30))
+  );
+}
+
+function isTradingHoliday(currentDay) {
+  const holidays = ["02-10-2023", "14-11-2023", "27-11-2023", "25-12-2023"];
+  return holidays.includes(currentDay);
 }
 
 async function getAndStore(symbol) {
@@ -200,8 +215,16 @@ app.get("/update-oiData", async (req, res) => {
 });
 
 app.get("/initialize-db", async (req, res) => {
-  await initializeDb();
-  res.send("db is initialized");
+  const currentDay = luxon.DateTime.now()
+    .setZone("Asia/Kolkata")
+    .toFormat("dd-MM-yyyy");
+
+  if (isTradingHoliday(currentDay)) {
+    res.send("Trading Holiday, so don't drop previous day data");
+  } else {
+    await initializeDb();
+    res.send("db is initialized");
+  }
 });
 
 //* not in daily use
@@ -329,11 +352,18 @@ app.get("/expiry-dates/:symbol", async (req, res) => {
 app.get("/total-coi/:symbol", async (req, res) => {
   try {
     const symbol = req.params.symbol;
-
     const Total = mongoose.model(symbol, oiDataSchema, symbol);
-
     const data = await Total.findOne({ strikePrice: 0 }).catch(errorHandler);
-    if (data) {
+
+    if (!data) {
+      const currentTime = luxon.DateTime.now().setZone("Asia/Kolkata");
+      // check if the current time is out of trading range or it's trading holiday
+      if (!isWithinTradingTime(currentTime)) {
+        res.send("Wait for market opening");
+      } else {
+        res.status(500).send("Internal Server Error");
+      }
+    } else {
       const oi = data.oiArray;
       const oiLacs = oi.map((element) => {
         const time = element.time;
@@ -370,7 +400,15 @@ app.get("/sp-data/:symbol/:strike", async (req, res) => {
 
     const data = await Sp.findOne({ strikePrice: strike }).catch(errorHandler);
 
-    if (data) {
+    if (!data) {
+      const currentTime = luxon.DateTime.now().setZone("Asia/Kolkata");
+      // check if the current time is out of trading range or it's trading holiday
+      if (!isWithinTradingTime(currentTime)) {
+        res.send("Wait for market opening");
+      } else {
+        res.status(500).send("Internal Server Error");
+      }
+    } else {
       const oi = data.oiArray;
       const oiLacs = oi.map((element) => {
         const time = element.time;
