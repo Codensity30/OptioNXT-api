@@ -198,19 +198,27 @@ async function initializeDb() {
 
 //! endpoint for internal purposes -----------------------------------------
 app.get("/update-oiData", async (req, res) => {
-  try {
-    const symList = ["NIFTY", "BANKNIFTY", "FINNIFTY"];
+  const currentDay = luxon.DateTime.now()
+    .setZone("Asia/Kolkata")
+    .toFormat("dd-MM-yyyy");
 
-    const requests = symList.map((element) => {
-      return getAndStore(element);
-    });
+  if (isTradingHoliday(currentDay)) {
+    res.send("Trading Holiday, so don't drop previous day data");
+  } else {
+    try {
+      const symList = ["NIFTY", "BANKNIFTY", "FINNIFTY"];
 
-    await Promise.all(requests).catch(errorHandler);
+      const requests = symList.map((element) => {
+        return getAndStore(element);
+      });
 
-    res.send("OI data stored");
-  } catch (error) {
-    errorHandler(error);
-    res.status(500).send("Internal Server Error");
+      await Promise.all(requests).catch(errorHandler);
+
+      res.send("OI data stored");
+    } catch (error) {
+      errorHandler(error);
+      res.status(500).send("Internal Server Error");
+    }
   }
 });
 
